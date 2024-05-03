@@ -6,27 +6,27 @@
 
 using namespace std;
 
-// Li?t k� c�c bi?u tu?ng (Symbol) cho c�c � tr�n b?ng
+// Liệt kê các biểu tượng (Symbol) cho các ô trên bảng
 enum Symbol { X, O };
 
-// Li?t k� tr?ng th�i c?a tr� choi
+// Liệt kê trạng thái của trò choi
 enum GameStatus { IN_PROGRESS, DRAW, FIRST_PLAYER_WIN, SECOND_PLAYER_WIN };
 
-// Li?t k� c�c lo?i ngu?i choi
+// Liệt kê các loại người chơi
 enum PlayerType { HUMAN, COMPUTER };
 
 
-// L?p Board d?i di?n cho b?ng tr� choi
+// Lớp Board đại diện cho bảng trò choi
 class Board {
 private:
-    vector<char> square;    // Vector ch?a c�c � tr�n b?ng
-    int numberOfEmptySquare; // S? � tr?ng tr�n b?ng
+    vector<char> square;    // Vector chứa các ô trên bảng
+    int numberOfEmptySquare; // Số ô trống trên bảng
 
 public:
-    // Constructor c?a Board
+    // Constructor của Board
     Board() : square(9, '_'), numberOfEmptySquare(9) {}
 
-    // Phuong th?c d? d�nh d?u � tr�n b?ng v?i bi?u tu?ng (X ho?c O) tuong ?ng
+    // Phương thức để đánh dấu ô trên bảng với biểu tượng (X hoặc O) tương ứng
     bool markSymbol(int row, int col, Symbol symbol) {
         int index = row * 3 + col;
         if (square[index] == '_') {
@@ -37,7 +37,7 @@ public:
         return false;
     }
 
-    // Phuong th?c d? ki?m tra xem c� ngu?i chi?n th?ng hay kh�ng
+    //  Phương thức để kiểm tra xem có người chiến thắng hay không ?
     bool checkWin() {
         for (int i = 0; i < 3; ++i) {
             if (square[i] != '_' && square[i] == square[i + 3] && square[i] == square[i + 6])
@@ -52,12 +52,12 @@ public:
         return false;
     }
 
-    // Phuong th?c d? ki?m tra xem c�n � tr?ng n�o tr�n b?ng hay kh�ng
+    //  Phương thức để kiểm tra xem còn ô trống nào trên bảng hay không ?
     bool isEmptyCellExist() {
         return numberOfEmptySquare > 0;
     }
 
-    // Phuong th?c d? in b?ng ra m�n h�nh
+    //  Phương thức để in bảng ra màn hình
     void printBoard() {
         for (int i = 0; i < 9; ++i) {
             cout << square[i] << ' ';
@@ -67,81 +67,82 @@ public:
 };
 
 
-// L?p Player d?i di?n cho m?t ngu?i choi
+//  Lớp Player đại diện cho một người chơi
 class Player {
 protected:
-    int id;         // ID c?a ngu?i choi
-    string name;    // T�n c?a ngu?i choi
+    int id;         //  ID của người chơi
+    string name;    //  Tên của người chơi
 public:
     Player(int playerId, const string& playerName) : id(playerId), name(playerName) {}
 
-    // Phuong th?c ?o d? l?y bu?c di ti?p theo c?a ngu?i choi
+    //  Phương thức để lấy bước đi tiếp theo của người chơi
     virtual int getNextMove(Board& board, int& row, int& col) = 0;
 
-    // Phuong th?c ?o d? l?y bi?u tu?ng c?a ngu?i choi (X ho?c O)
+    //  Phương thức để lấy biểu tượng của người chơi (X hoặc O)
     virtual Symbol getSymbol() const = 0;
 
-    // Phuong th?c d? l?y ID c?a ngu?i choi
+    //  Phương thức để lấy ID của người chơi
     int getId() const { return id; }
 
-    // Phuong th?c d? l?y t�n c?a ngu?i choi
+    //  Phương thức để lấy tên của người chơi
     string getName() const { return name; }
 
-    // Phuong th?c ?o d? ki?m tra xem ngu?i choi c� ph?i l� m�y AI hay kh�ng
+    //  Phương thức để kiểm tra xem người chơi có phải là máy AI hay không
     virtual bool isAI() const { return false; }
 
-    // H?y b? da h�nh
+    //  Hủy bỏ đa hình
     virtual ~Player() {}
 };
 
-// L?p HumanPlayer k? th?a t? l?p Player, d?i di?n cho ngu?i choi l� con ngu?i
+//  Lớp HumanPlayer kế thừa từ lớp Player, đại diện cho người chơi là con người
 class HumanPlayer : public Player {
 private:
-    Symbol symbol; // Bi?u tu?ng c?a ngu?i choi (X ho?c O)
+    Symbol symbol; //  Biểu tượng của người chơi (X hoặc O)
 
 public:
-    // Constructor c?a HumanPlayer
+    // Constructor của HumanPlayer
     HumanPlayer(int playerId, const string& playerName, Symbol sym) : Player(playerId, playerName), symbol(sym) {}
 
-    // Phuong th?c d? ngu?i choi con ngu?i l?y bu?c di ti?p theo
+    //  Phương thức để người chơi con người lấy bước đi tiếp theo
     int getNextMove(Board& board, int& row, int& col) override {
         while (true) {
-            // Nh?p d�ng v� c?t t? ngu?i choi
+            //  Nhập dòng và cột từ người chơi
             cout << "Player " << getName() << ", enter row and column (0-2): ";
             cin >> row >> col;
 
-            // Ki?m tra t�nh h?p l? c?a d�ng v� c?t nh?p v�o
+            //  Kiểm tra tính hợp lệ của dòng và cột nhập vào
             if (row < 0 || row > 2 || col < 0 || col > 2) {
                 cout << "Invalid input. Row and column must be in range [0, 2]." << endl;
                 continue;
             }
 
-            // ��nh d?u � tr�n b?ng n?u � d� chua du?c d�nh d?u tru?c d�
+            //  Đánh dấu ô trên bảng nếu ô đó chưa được đánh dấu trước đó
             if (board.markSymbol(row, col, symbol)) {
                 break;
-            } else {
+            }
+            else {
                 cout << "Cell (" << row << ", " << col << ") is already taken. Please choose another cell." << endl;
             }
         }
         return 0;
     }
 
-    // Phuong th?c d? l?y bi?u tu?ng c?a ngu?i choi
+    //  Phương thức lấy biểu tượng của người chơi
     Symbol getSymbol() const override {
         return symbol;
     }
 };
 
-// L?p ComputerPlayer k? th?a t? l?p Player, d?i di?n cho ngu?i choi l� m�y t�nh
+//  Lớp ComputerPlayer kế thừa từ lớp Player, đại diện cho người chơi là máy tính
 class ComputerPlayer : public Player {
 private:
-    Symbol symbol; // Bi?u tu?ng c?a ngu?i choi (X ho?c O)
+    Symbol symbol; // Biểu tượng của người chơi (X hoặc O)
 
 public:
-    // Constructor c?a ComputerPlayer
+    // Constructor của ComputerPlayer
     ComputerPlayer(int playerId, const string& playerName, Symbol sym) : Player(playerId, playerName), symbol(sym) {}
 
-    // Phuong th?c d? ngu?i choi m�y t�nh l?y bu?c di ti?p theo
+    //  Phương thức để người chơi máy tính lấy bước đi tiếp theo
     int getNextMove(Board& board, int& row, int& col) override {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -153,35 +154,35 @@ public:
         return 0;
     }
 
-    // Phuong th?c d? l?y bi?u tu?ng c?a ngu?i choi
+    // Phương thức lấy biểu tượng của người chơi
     Symbol getSymbol() const override {
         return symbol;
     }
 
-    // Phuong th?c d? ki?m tra xem ngu?i choi c� ph?i l� m�y AI hay kh�ng
+    //  Phương thức để kiểm tra xem người chơi có phải là máy AI hay không
     bool isAI() const override { return true; }
 };
 
-// L?p Game d?i di?n cho tr� choi
+// Lớp Game đại diện cho trò choi
 class Game {
 private:
-    Board board;            // B?ng tr� choi
-    Player* firstPlayer;    // Ngu?i choi th? nh?t
-    Player* secondPlayer;   // Ngu?i choi th? hai
-    GameStatus gameStatus;  // Tr?ng th�i c?a tr� choi
+    Board board;            // Bảng trò choi
+    Player* firstPlayer;    // Người chơi thứ 1
+    Player* secondPlayer;   // Người chơi thứ 2
+    GameStatus gameStatus;  // Trạng thái của trò chơi
 
 public:
-    // Constructor c?a Game
+    // Constructor của Game
     Game(Player* p1, Player* p2) : firstPlayer(p1), secondPlayer(p2), gameStatus(IN_PROGRESS) {}
 
-    // Phuong th?c d? th?c hi?n tr� choi
+    //  Phương thức để thực hiện trò chơi
     void play() {
         int row, col;
         while (board.isEmptyCellExist() && gameStatus == IN_PROGRESS) {
-            // Lu?t di c?a ngu?i choi th? nh?t
+            //  Lượt đi của người chơi thứ 1
             firstPlayer->getNextMove(board, row, col);
             board.markSymbol(row, col, firstPlayer->getSymbol());
-            board.printBoard(); // In b?ng sau lu?t di c?a ngu?i choi 1
+            board.printBoard(); //  In bảng sau lượt đi của người chơi 1
             if (board.checkWin()) {
                 gameStatus = FIRST_PLAYER_WIN;
                 break;
@@ -191,10 +192,10 @@ public:
                 break;
             }
 
-            // Lu?t di c?a ngu?i choi th? hai
+            // Lượt đi của người chơi thứ 2
             secondPlayer->getNextMove(board, row, col);
             board.markSymbol(row, col, secondPlayer->getSymbol());
-            board.printBoard(); // In b?ng sau lu?t di c?a ngu?i choi 2
+            board.printBoard(); // In bảng sau lượt đi của người chơi 2
             if (board.checkWin()) {
                 gameStatus = SECOND_PLAYER_WIN;
                 break;
@@ -202,19 +203,21 @@ public:
         }
     }
 
-    // Phuong th?c d? in k?t qu? c?a tr� choi ra m�n h�nh
+    // Phương thức để in kết quả của trò chơi ra màn hình
     void printResult() const {
         if (gameStatus == FIRST_PLAYER_WIN) {
             cout << "Congratulations! " << firstPlayer->getName() << " wins!" << endl;
-        } else if (gameStatus == SECOND_PLAYER_WIN) {
+        }
+        else if (gameStatus == SECOND_PLAYER_WIN) {
             cout << "Congratulations! " << secondPlayer->getName() << " wins!" << endl;
-        } else {
+        }
+        else {
             cout << "It's a draw!" << endl;
         }
     }
 };
 
-// H�m t?o ngu?i choi d?a tr�n l?a ch?n c?a ngu?i d�ng
+//  Hàm tạo người chơi dựa trên lựa chọn của người dùng 
 Player* createPlayer(int& playerId) {
     string playerName;
     cout << "Enter name for Player " << playerId << ": ";
@@ -222,28 +225,29 @@ Player* createPlayer(int& playerId) {
     char playerTypeChoice;
     cout << "Is Player " << playerId << " a human player? (y/n): ";
     cin >> playerTypeChoice;
-    Symbol playerSymbol = (playerId == 1) ? X : O; // Ngu?i choi d?u ti�n s? ch?n X, ngu?i choi th? hai s? ch?n O
+    Symbol playerSymbol = (playerId == 1) ? X : O; //  Người chơi đầu tiên sẽ chọn X, người chơi thứ 2 sẽ chọn O
     if (tolower(playerTypeChoice) == 'y') {
         return new HumanPlayer(playerId++, playerName, playerSymbol);
-    } else {
+    }
+    else {
         return new ComputerPlayer(playerId++, "Computer", playerSymbol);
     }
 }
 
-// H�m main
+// Hàm main
 int main() {
-    int playerId = 1;           // Kh?i t?o ID c?a ngu?i choi
-    Player* p1 = createPlayer(playerId);   // T?o ngu?i choi th? nh?t
-    Player* p2 = createPlayer(playerId);   // T?o ngu?i choi th? hai
-    
-    // T?o tr� choi v?i hai ngu?i choi d� du?c t?o
+    int playerId = 1;           //  Khởi tạo ID của người chơi
+    Player* p1 = createPlayer(playerId);   // Tạo người chơi thứ 1
+    Player* p2 = createPlayer(playerId);   // Tạo người chơi thứ 2
+
+    //  Tạo trò chơi với hai người chơi đã được tạo
     Game game(p1, p2);
-    // B?t d?u choi tr� choi
+    // Bắt đàu trò chơi
     game.play();
-    // In k?t qu? c?a tr� choi ra m�n h�nh
+    //  In kết quả của trò chơi ra màn hình
     game.printResult();
 
-    // Gi?i ph�ng b? nh?
+    //  Giải phóng bộ nhớ
     delete p1;
     delete p2;
 
